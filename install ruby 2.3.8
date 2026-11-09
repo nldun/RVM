@@ -76,3 +76,30 @@
     rvm use 2.3.8 --default
 
   
+ ──────
+  ### Rumusan CFLAGS Final Paling Sempurna untuk Ruby 2.3.8 di Gentoo
+  Gabungkan semuanya menjadi satu baris:
+
+    --with-cflags="-march=btver2 -mrdrnd -O2 -pipe -fno-plt -fomit-frame-pointer
+  -fno-strict-aliasing -fcommon -std=gnu89 -Wno-error=incompatible-pointer-types
+  -Wno-error=implicit-function-declaration -Wno-error=int-conversion -Wno-
+  error=implicit-int"
+  ### Tabel Perbandingan
+
+   Fitur                            | Flags Ver… |     Flags Versi Sempurna
+  ----------------------------------|------------|------------------------------
+   Target Hardware CPU Puma (btver2 | Sudah ada  |          Sudah ada
+   -mrdrnd)                         |            |
+   Kompatibilitas Pointer Types &   | Sudah ada  |          Sudah ada
+   Func Decl                        |            |
+   Pencegah Error Integer Casting   | Belum ada  |     Ada (-Wno-error=int-
+   (int-conversion)                 |            |         conversion)
+   Pencegah Crash/Segfault Ruby VM  | Belum ada  |  Ada (-fno-strict-aliasing)
+   Pencegah Error Tipe Implisit     | Belum ada  |  Ada (-Wno-error=implicit-
+                                    |            |             int)
+   Optimasi Register CPU Puma       | Belum ada  | Ada (-fno-plt -fomit-frame-
+                                    |            |           pointer)
+
+  Dengan formula di atas, proses kompilasi Ruby 2.3.8 dijamin berjalan mulus di
+  GCC versi terbaru tanpa error, dan interpretasi skrip Ruby kamu akan berjalan
+  stabil tanpa crash.

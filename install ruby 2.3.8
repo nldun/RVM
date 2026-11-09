@@ -1,0 +1,78 @@
+### 1. Wajib Tambahkan Flag Kompatibilitas GCC Modern (Paling Krusial!)
+
+  Ruby 2.3.8 dibuat tahun 2018 (standar C lama), sedangkan Gentoo kamu
+  menggunakan kompiler GCC versi baru (GCC 14/15). Kompiler baru memberlakukan
+  aturan ketat yang bisa membuat kompilasi Ruby 2.3.8 gagal/error di tengah
+  jalan (incompatible pointer types / implicit declaration).
+
+  Saran Tambahan:
+  Kunci standar bahasa ke C lama (-std=gnu89 -fcommon) dan masukkan arsitektur
+  CPU Puma kamu (-march=btver2 -mrdrnd):
+    rvm install 2.3.8 -j 4 --with-openssl-dir=$HOME/.rvm/usr \
+      --with-cflags="-march=btver2 -mrdrnd -O2 -pipe -std=gnu89 -fcommon -Wno-
+  error=incompatible-pointer-types -Wno-error=implicit-function-declaration"
+  ──────
+  ### 2. Gunakan Semua 4-Core CPU (-j 4)
+  Secara default, RVM terkadang hanya menggunakan 1 core CPU jika tidak
+  diarahkan. Prosesor AMD A8-7410 kamu memiliki 4 core fisik.
+
+  • Menambahkan opsi -j 4 akan memangkas waktu kompilasi dari ~6 menit menjadi
+  hanya ~1,5 menit.
+  ──────
+  ### 3. Matikan Pembuatan Dokumentasi (--disable-install-doc)
+
+  Kompilasi dokumentasi internal RDoc/RI memakan waktu lama, membuat CPU panas,
+  dan memboroskan ruang disk SSD hingga ratusan MB.
+ Saran Tambahan:
+  Tambahkan opsi:
+
+    --disable-install-doc
+  Dengan opsi ini, biner Ruby langsung dipasang tanpa membuang waktu me-render
+  dokumen HTML yang jarang dibaca.
+  ──────
+  ### 4. Hemat Disk SSD saat Pasang Gem (~/.gemrc)
+
+  Setiap kali kamu menjalankan gem install, Ruby secara default akan men-
+  generate ratusan file dokumen ri/rdoc. Di SSD yang kapasitasnya perlu dihemat,
+  ini tidak efisien.
+
+  Saran Tambahan:
+  Buat pengaturan global agar instalasi gem instan dan hemat ruang:
+    echo "gem: --no-document" >> ~/.gemrc
+  ──────
+  ### 5. Backup Daftar Gem Aktif Sebelum Hapus/Reinstall
+
+  Saat ini Ruby 2.3.8 kamu sudah punya banyak gem penting (seperti ffi 1.15.5,
+  webrick, jekyll, dll.). Sebelum menghapus/menginstal ulang, selamatkan daftar
+  gem kamu:
+    ~/.rvm/rubies/ruby-2.3.8/bin/gem list --no-versions > ~/daftar_gem_lama.txt
+
+  Setelah Ruby baru selesai terpasang, kamu bisa mengembalikan semuanya secara
+  otomatis dalam satu baris:
+  xargs gem install < ~/daftar_gem_lama.txt
+  ──────
+  ### Skrip Lengkap Paling Optimal (Jika Nanti Ingin Reinstall)
+  Jika suatu saat kamu ingin instal ulang secara bersih dan tercepat, gunakan
+  satu blok perintah yang sudah disempurnakan ini:
+    # 1. Bersihkan variabel lingkungan
+    unset GEM_HOME
+    . ~/.rvm/scripts/rvm
+
+    # 2. Matikan autolibs (Wajib untuk Gentoo agar tidak mengacaukan Portage)
+    rvm autolibs disable
+
+    # 3. Pasang OpenSSL legacy lokal
+    rvm pkg install openssl
+
+    # 4. Kompilasi Ruby 2.3.8 (4 Core + Native btver2 + CFLAGS Aman GCC Baru +
+  Tanpa RDoc)
+    rvm install 2.3.8 -j 4 \
+      --disable-install-doc \
+      --with-openssl-dir=$HOME/.rvm/usr \
+      --with-cflags="-march=btver2 -mrdrnd -O2 -pipe -std=gnu89 -fcommon -Wno-
+  error=incompatible-pointer-types -Wno-error=implicit-function-declaration"
+
+    # 5. Tetapkan sebagai default
+    rvm use 2.3.8 --default
+
+  

@@ -1,0 +1,83 @@
+Mengonfigurasi user userspace-only yang bersih
+  dan aman:
+  ──────
+  ### 1. Perintah Pembuatan User Userspace Murni
+
+  Jalankan perintah ini sebagai root (misal nama user barunya adalah
+  sandbox):
+
+    # Buat user baru HANYA dengan grup 'users' (tanpa wheel, tanpa sudo)
+    useradd -m -s /bin/bash -G users sandbox
+
+    # Beri password
+    passwd sandbox
+ 
+  
+  
+  # KONFIGURASI USER-SPACE: sandbox
+    #
+  ==============================================================================
+
+    # 1. Path Aplikasi Lokal User
+    export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
+
+    # 2. Editor & Pager Default
+    export EDITOR="vim"
+    export VISUAL="vim"
+    export PAGER="less"
+
+    # 3. Warna Prompt Khusus (Kuning Amber - Penanda Akun Sandbox)
+    # Format: [sandbox@tux ~]$
+    export PS1='\[\033[01;33m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$
+  '
+
+    # 4. Keamanan File Sandbox (User lain tidak bisa mengintip file baru kamu)
+    umask 027
+
+    # 5. Alias Praktis
+    alias ls='ls --color=auto'
+    alias ll='ls -lah --color=auto'
+    alias la='ls -A --color=auto'
+    alias grep='grep --color=auto'
+    alias df='df -h'
+    alias free='free -h'
+
+  mkdir -p ~/.local/{bin,lib,state} ~/.local/share/{fonts,applications} ~/.config ~/.cache
+
+    # 6. Riwayat Perintah Bersih
+    export HISTSIZE=2000
+    export HISTFILESIZE=5000
+    export HISTCONTROL=ignoreboth:erasedups
+  ──────
+  Setelah disimpan, ketik perintah ini untuk langsung mengaktifkannya:
+    source ~/.bashrc
+## Cara 2: Unduh Rilis Resmi Langsung dari GitHub Google
+
+  Jika kamu ingin mengunduh arsip tarball resminya sendiri dari internet tanpa
+  menyentuh file /usr/bin:
+
+  Jalankan ini di akun sandbox:
+
+    # 1. Unduh dan langsung ekstrak ke ~/.local/bin/
+    curl -L "https://github.com/google-antigravity/antigravity-
+  cli/releases/download/1.3.2/agy_cli_linux_x64.tar.gz" | tar -xz -C ~/.
+  local/bin/
+
+    # 2. Beri izin eksekusi
+  chmod +x ~/.local/bin/antigravity
+ ### 2. Buat Shortcut Symlink agy
+
+    ln -s ~/.local/bin/antigravity ~/.local/bin/agy
+
+  ──────
+  ### Cara Membuktikan Bahwa yang Dipakai Adalah Versi Lokal
+
+  Ketik perintah ini di terminal sandbox:
+
+    which agy
+  Jika outputnya menampilkan:
+    /home/sandbox/.local/bin/agy
+  Artinya sukses 100%! Antigravity CLI sekarang berjalan mandiri dari folder
+  lokal sandbox kamu, sepenuhnya terpisah dari sistem.
+
+    
